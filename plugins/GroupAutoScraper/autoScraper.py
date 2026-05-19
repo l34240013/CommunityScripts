@@ -168,13 +168,15 @@ def build_group_update_input(
     # Director
     input_obj["director"] = coalesce(scraped.get("director"), existing.get("director"))
 
-    # URLs: prefer scraped urls when non-empty
+    # URLs: merge scraped and existing (scraped first, no duplicates)
     scraped_urls = scraped.get("urls") or []
     existing_urls = existing.get("urls") or []
-    if scraped_urls:
-        input_obj["urls"] = scraped_urls
-    elif existing_urls:
-        input_obj["urls"] = existing_urls
+    if scraped_urls or existing_urls:
+        merged = list(scraped_urls)
+        for u in existing_urls:
+            if u not in merged:
+                merged.append(u)
+        input_obj["urls"] = merged
 
     # Synopsis
     input_obj["synopsis"] = coalesce(scraped.get("synopsis"), existing.get("synopsis"))
